@@ -9,24 +9,37 @@ use std::{
 
 mod client;
 
+use log::info;
+
 fn setup_server_thread(server: Arc<Server>) -> JoinHandle<()> {
+    let address = server.address().to_string(); // Retrieve the dynamic address
     thread::spawn(move || {
+        info!("Server running on {}", address);
         server.run().expect("Server encountered an error");
     })
 }
 
+
 fn create_server() -> Arc<Server> {
-    Arc::new(Server::new("localhost:8080").expect("Failed to start server"))
+    // Bind to "localhost:0" for a random available port
+    let server = Server::new("localhost:0").expect("Failed to start server");
+    Arc::new(server)
 }
+
 
 #[test]
 fn test_client_connection() {
-    // Set up the server in a separate thread
     let server = create_server();
+    let address = server.address(); // Get the dynamic address
     let handle = setup_server_thread(server.clone());
 
-    // Create and connect the client
-    let mut client = client::Client::new("localhost", 8080, 1000);
+    // Extract host and port from the address
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
+    // Convert port from u16 to u32 for Client::new
+    let mut client = client::Client::new(host, port.into(), 1000);
     assert!(client.connect().is_ok(), "Failed to connect to the server");
 
     // Disconnect the client
@@ -35,7 +48,7 @@ fn test_client_connection() {
         "Failed to disconnect from the server"
     );
 
-    // Stop the server and wait for thread to finish
+    // Stop the server
     server.stop();
     assert!(
         handle.join().is_ok(),

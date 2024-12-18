@@ -47,17 +47,24 @@ impl Client {
 pub struct Server {
     listener: TcpListener,
     is_running: Arc<AtomicBool>,
+    address: String, // Store the address the server is bound to
 }
 
 impl Server {
     /// Creates a new server instance
     pub fn new(addr: &str) -> io::Result<Self> {
         let listener = TcpListener::bind(addr)?;
+        let local_addr = listener.local_addr()?; // Retrieve the actual address the server is bound to
         let is_running = Arc::new(AtomicBool::new(false));
         Ok(Server {
             listener,
             is_running,
+            address: local_addr.to_string(),
         })
+    }
+    /// Returns the server's address
+    pub fn address(&self) -> &str {
+        &self.address
     }
 
     /// Runs the server, listening for incoming connections and handling them

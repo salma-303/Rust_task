@@ -62,8 +62,16 @@ fn test_client_echo_message() {
     let server = create_server();
     let handle = setup_server_thread(server.clone());
 
+    // Ensure the server is ready before connecting the client
+    thread::sleep(std::time::Duration::from_millis(100));
     // Create and connect the client
-    let mut client = client::Client::new("localhost", 8080, 1000);
+    let address = server.address(); // Get the server's actual address
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
+    let mut client = client::Client::new(host, port.into(), 1000);
+
     assert!(client.connect().is_ok(), "Failed to connect to the server");
 
     // Prepare the message
@@ -106,15 +114,26 @@ fn test_client_echo_message() {
 }
 
 #[test]
-#[ignore = "please remove ignore and fix this test"]
+// #[ignore = "please remove ignore and fix this test"]
 fn test_multiple_echo_messages() {
     // Set up the server in a separate thread
     let server = create_server();
     let handle = setup_server_thread(server.clone());
 
+    // Ensure the server is ready before connecting the client
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
     // Create and connect the client
-    let mut client = client::Client::new("localhost", 8080, 1000);
+    let mut client = client::Client::new(host, port.into(), 1000);
+    log::debug!("Before client connect");
     assert!(client.connect().is_ok(), "Failed to connect to the server");
+    log::debug!("After client connect");
+
 
     // Prepare multiple messages
     let messages = vec![
@@ -165,17 +184,25 @@ fn test_multiple_echo_messages() {
 }
 
 #[test]
-#[ignore = "please remove ignore and fix this test"]
+// #[ignore = "please remove ignore and fix this test"]
 fn test_multiple_clients() {
     // Set up the server in a separate thread
     let server = create_server();
     let handle = setup_server_thread(server.clone());
 
+    // Ensure the server is ready before connecting clients
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
     // Create and connect multiple clients
     let mut clients = vec![
-        client::Client::new("localhost", 8080, 1000),
-        client::Client::new("localhost", 8080, 1000),
-        client::Client::new("localhost", 8080, 1000),
+        client::Client::new(host, port.into(), 1000),
+        client::Client::new(host, port.into(), 1000),
+        client::Client::new(host, port.into(), 1000),
     ];
 
     for client in clients.iter_mut() {
@@ -238,14 +265,22 @@ fn test_multiple_clients() {
 }
 
 #[test]
-#[ignore = "please remove ignore and fix this test"]
+// #[ignore = "please remove ignore and fix this test"]
 fn test_client_add_request() {
     // Set up the server in a separate thread
     let server = create_server();
     let handle = setup_server_thread(server.clone());
 
+    // Ensure the server is ready before connecting the client
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
     // Create and connect the client
-    let mut client = client::Client::new("localhost", 8080, 1000);
+    let mut client = client::Client::new(host, port.into(), 1000);
     assert!(client.connect().is_ok(), "Failed to connect to the server");
 
     // Prepare the message

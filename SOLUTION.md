@@ -164,3 +164,270 @@ Deadlocks are avoided by ensuring:
     test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
 
 ```
+
+## New tests meaningful and comprehensive
+* **Concurrent Add Requests:** Validates the server's ability to process multiple arithmetic operations concurrently.
+
+* **Large Message Handling:** Tests the server's ability to handle large payloads.
+     - Steps to Resolve
+        1- Increase Logging for Debugging
+        2- Increase Client Buffer Size
+        3- Increase Timeout
+
+
+* **Rapid Connect and Disconnect:** Ensures stability under rapid client connections and disconnections.
+
+## Test Suite Results with new ones 
+
+```
+
+     Running tests/client.rs (target/debug/deps/client-082e1079dc5cc546)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/client_test.rs (target/debug/deps/client_test-011d20d1cd9f753d)
+
+running 8 tests
+Connecting to 127.0.0.1:38047
+Connecting to 127.0.0.1:40645
+Connecting to 127.0.0.1:41617
+Connecting to 127.0.0.1:45625
+Connected to the server!
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Connecting to 127.0.0.1:37147
+Connected to the server!
+Sent message: EchoMessage(EchoMessage { content: "ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss" })
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:39243
+Connected to the server!
+Connected to the server!
+Sent message: AddRequest(AddRequest { a: 10, b: 20 })
+Sent message: EchoMessage(EchoMessage { content: "Hello, World!" })
+Connecting to 127.0.0.1:41617
+Disconnected from the server!
+Connecting to 127.0.0.1:37147
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Connecting to 127.0.0.1:37147
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Received AddResponse: result = 30
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Disconnected from the server!
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connecting to 127.0.0.1:44897
+Sent message: EchoMessage(EchoMessage { content: "Hello, World!" })
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Sent message: EchoMessage(EchoMessage { content: "Hello, World!" })
+test test_client_connection ... ok
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Connecting to 127.0.0.1:41617
+Connected to the server!
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Connected to the server!
+Disconnected from the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Sent message: EchoMessage(EchoMessage { content: "Hello, World!" })
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Sent message: EchoMessage(EchoMessage { content: "Hello, World!" })
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Sent message: EchoMessage(EchoMessage { content: "How are you?" })
+Sent message: EchoMessage(EchoMessage { content: "How are you?" })
+Sent message: EchoMessage(EchoMessage { content: "How are you?" })
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Sent message: EchoMessage(EchoMessage { content: "Goodbye!" })
+Connected to the server!
+Sent message: EchoMessage(EchoMessage { content: "Goodbye!" })
+Sent message: EchoMessage(EchoMessage { content: "Goodbye!" })
+Disconnected from the server!
+Disconnected from the server!
+Disconnected from the server!
+Disconnected from the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Connecting to 127.0.0.1:35695
+Connected to the server!
+Disconnected from the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Disconnected from the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+Disconnected from the server!
+Disconnected from the server!
+Sent message: AddRequest(AddRequest { a: 5, b: 15 })
+Disconnected from the server!
+test test_client_add_request ... ok
+test test_large_echo_message ... ok
+Sent message: EchoMessage(EchoMessage { content: "How are you?" })
+Sent message: EchoMessage(EchoMessage { content: "Goodbye!" })
+Disconnected from the server!
+test test_rapid_connect_disconnect ... ok
+test test_client_echo_message ... ok
+test test_multiple_clients ... ok
+test test_concurrent_add_requests ... ok
+test test_multiple_echo_messages ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.30s
+```

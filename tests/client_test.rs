@@ -134,7 +134,7 @@ fn test_multiple_echo_messages() {
     log::debug!("Before client connect");
     assert!(client.connect().is_ok(), "Failed to connect to the server");
     log::debug!("After client connect");
-    
+
     // Prepare multiple messages
     let messages = vec![
         "Hello, World!".to_string(),
@@ -295,15 +295,15 @@ fn test_client_add_request() {
 
     // Receive the response
     let response = client.receive();
-    assert!(response.is_ok(), "Failed to receive response for AddRequest");
+    assert!(
+        response.is_ok(),
+        "Failed to receive response for AddRequest"
+    );
 
     match response.unwrap().message {
         Some(server_message::Message::AddResponse(add_response)) => {
             // Log or print the received sum
-            println!(
-                "Received AddResponse: result = {}",
-                add_response.result
-            );
+            println!("Received AddResponse: result = {}", add_response.result);
             assert_eq!(
                 add_response.result,
                 add_request.a + add_request.b,
@@ -314,7 +314,156 @@ fn test_client_add_request() {
     }
 
     // Disconnect and stop the server
-    assert!(client.disconnect().is_ok(), "Failed to disconnect from the server");
+    assert!(
+        client.disconnect().is_ok(),
+        "Failed to disconnect from the server"
+    );
     server.stop();
-    assert!(handle.join().is_ok(), "Server thread panicked or failed to join");
+    assert!(
+        handle.join().is_ok(),
+        "Server thread panicked or failed to join"
+    );
+}
+
+#[test]
+fn test_concurrent_add_requests() {
+    // Set up the server in a separate thread
+    let server = create_server();
+    let handle = setup_server_thread(server.clone());
+
+    // Ensure the server is ready before connecting the clients
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
+    // Create multiple clients and connect them
+    let mut clients: Vec<client::Client> = (0..10)
+        .map(|_| client::Client::new(host, port.into(), 1000))
+        .collect();
+
+    for client in clients.iter_mut() {
+        assert!(client.connect().is_ok(), "Failed to connect to the server");
+    }
+
+    // Send AddRequest messages from all clients concurrently
+    let handles: Vec<_> = clients
+        .into_iter()
+        .map(|mut client| {
+            thread::spawn(move || {
+                let mut add_request = AddRequest::default();
+                add_request.a = 5;
+                add_request.b = 15;
+
+                let message = client_message::Message::AddRequest(add_request.clone());
+                assert!(client.send(message).is_ok(), "Failed to send AddRequest");
+
+                let response = client.receive();
+                assert!(response.is_ok(), "Failed to receive AddResponse");
+
+                if let Some(server_message::Message::AddResponse(add_response)) =
+                    response.unwrap().message
+                {
+                    assert_eq!(add_response.result, 20, "Incorrect sum in AddResponse");
+                } else {
+                    panic!("Expected AddResponse, but received a different message");
+                }
+
+                client
+                    .disconnect()
+                    .expect("Failed to disconnect from the server");
+            })
+        })
+        .collect();
+
+    // Wait for all threads to finish
+    for handle in handles {
+        handle.join().expect("Client thread panicked");
+    }
+
+    // Stop the server and wait for it to finish
+    server.stop();
+    assert!(
+        handle.join().is_ok(),
+        "Server thread panicked or failed to join"
+    );
+}
+
+#[test]
+fn test_large_echo_message() {
+    let server = create_server();
+    let handle = setup_server_thread(server.clone());
+
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
+    let mut client = client::Client::new(host, port.into(), 1000);
+    assert!(client.connect().is_ok(), "Failed to connect to the server");
+
+    let mut echo_message = EchoMessage::default();
+    echo_message.content = "s".repeat(10_000); // Large message with 10,000 characters
+    let message = client_message::Message::EchoMessage(echo_message.clone());
+
+    assert!(
+        client.send(message).is_ok(),
+        "Failed to send large EchoMessage"
+    );
+
+    let response = client.receive();
+    assert!(
+        response.is_ok(),
+        "Failed to receive response for large EchoMessage"
+    );
+
+    if let Some(server_message::Message::EchoMessage(echo_response)) = response.unwrap().message {
+        assert_eq!(
+            echo_response.content, echo_message.content,
+            "Echoed message content does not match the original"
+        );
+    } else {
+        panic!("Expected EchoMessage, but received a different message");
+    }
+
+    client
+        .disconnect()
+        .expect("Failed to disconnect from the server");
+    server.stop();
+    assert!(
+        handle.join().is_ok(),
+        "Server thread panicked or failed to join"
+    );
+}
+
+#[test]
+fn test_rapid_connect_disconnect() {
+    let server = create_server();
+    let handle = setup_server_thread(server.clone());
+
+    thread::sleep(std::time::Duration::from_millis(100));
+
+    let address = server.address();
+    let parts: Vec<&str> = address.split(':').collect();
+    let host = parts[0];
+    let port: u16 = parts[1].parse().unwrap();
+
+    for _ in 0..50 {
+        let mut client = client::Client::new(host, port.into(), 1000);
+        assert!(client.connect().is_ok(), "Failed to connect to the server");
+        assert!(
+            client.disconnect().is_ok(),
+            "Failed to disconnect from the server"
+        );
+    }
+
+    server.stop();
+    assert!(
+        handle.join().is_ok(),
+        "Server thread panicked or failed to join"
+    );
 }

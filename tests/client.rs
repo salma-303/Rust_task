@@ -45,6 +45,8 @@ impl Client {
 
         // Connect to the server with a timeout
         let stream = TcpStream::connect_timeout(&socket_addrs[0], self.timeout)?;
+        stream.set_read_timeout(Some(Duration::from_secs(30)))?; // Increased timeout
+    stream.set_write_timeout(Some(Duration::from_secs(30)))?; // Increased timeout
         self.stream = Some(stream);
 
         println!("Connected to the server!");
@@ -85,7 +87,7 @@ impl Client {
     pub fn receive(&mut self) -> io::Result<ServerMessage> {
         if let Some(ref mut stream) = self.stream {
             info!("Receiving message from the server");
-            let mut buffer = vec![0u8; 1024];
+            let mut buffer = vec![0u8; 65536]; // Increased buffer size
             let bytes_read = stream.read(&mut buffer)?;
             if bytes_read == 0 {
                 info!("Server disconnected.");

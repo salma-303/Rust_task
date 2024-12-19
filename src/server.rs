@@ -34,7 +34,7 @@ impl Client {
     }
 
     pub fn handle(&mut self) -> io::Result<()> {
-        let mut buffer = [0; 512];
+        let mut buffer = [0; 65536]; // Increased buffer size for large payloads
 
         loop {
             match self.stream.read(&mut buffer) {
@@ -42,44 +42,47 @@ impl Client {
                     info!("Client disconnected.");
                     break;
                 }
-                Ok(bytes_read) => match ClientMessageWrapper::decode(&buffer[..bytes_read]) {
-                    Ok(ClientMessageWrapper {
-                        message: Some(client_message::Message::EchoMessage(echo_message)),
-                    }) => {
-                        info!("Received EchoMessage: {}", echo_message.content);
+                Ok(bytes_read) => {
+                    info!("Received {} bytes from client.", bytes_read); // Log message size
+                    match ClientMessageWrapper::decode(&buffer[..bytes_read]) {
+                        Ok(ClientMessageWrapper {
+                            message: Some(client_message::Message::EchoMessage(echo_message)),
+                        }) => {
+                            info!("Received EchoMessage: {}", echo_message.content);
 
-                        let response = ServerMessageWrapper {
-                            message: Some(server_message::Message::EchoMessage(echo_message)),
-                        };
-                        let payload = response.encode_to_vec();
-                        self.stream.write_all(&payload)?;
-                    }
-                    Ok(ClientMessageWrapper {
-                        message: Some(client_message::Message::AddRequest(add_request)),
-                    }) => {
-                        info!(
-                            "Received AddRequest: a = {}, b = {}",
-                            add_request.a, add_request.b
-                        );
+                            let response = ServerMessageWrapper {
+                                message: Some(server_message::Message::EchoMessage(echo_message)),
+                            };
+                            let payload = response.encode_to_vec();
+                            self.stream.write_all(&payload)?;
+                        }
+                        Ok(ClientMessageWrapper {
+                            message: Some(client_message::Message::AddRequest(add_request)),
+                        }) => {
+                            info!(
+                                "Received AddRequest: a = {}, b = {}",
+                                add_request.a, add_request.b
+                            );
 
-                        let result = add_request.a + add_request.b;
-                        let response = ServerMessageWrapper {
-                            message: Some(server_message::Message::AddResponse(AddResponse {
-                                result,
-                            })),
-                        };
-                        let payload = response.encode_to_vec();
-                        self.stream.write_all(&payload)?;
+                            let result = add_request.a + add_request.b;
+                            let response = ServerMessageWrapper {
+                                message: Some(server_message::Message::AddResponse(AddResponse {
+                                    result,
+                                })),
+                            };
+                            let payload = response.encode_to_vec();
+                            self.stream.write_all(&payload)?;
 
-                        info!("Sent AddResponse: result = {}", result);
+                            info!("Sent AddResponse: result = {}", result);
+                        }
+                        Ok(ClientMessageWrapper { message: None }) => {
+                            warn!("Received message with None type.");
+                        }
+                        Err(e) => {
+                            error!("Failed to decode message: {}", e);
+                        }
                     }
-                    Ok(ClientMessageWrapper { message: None }) => {
-                        warn!("Received message with None type.");
-                    }
-                    Err(e) => {
-                        error!("Failed to decode message: {}", e);
-                    }
-                },
+                }
                 Err(ref e) if e.kind() == ErrorKind::WouldBlock => {
                     thread::sleep(Duration::from_millis(100));
                 }

@@ -1,4 +1,4 @@
-use crate::message::EchoMessage;
+use crate::message::{client_message, server_message, AddResponse};
 use log::{error, info, warn};
 use prost::Message;
 use std::{
@@ -12,6 +12,18 @@ use std::{
     time::Duration,
 };
 
+#[derive(Clone, PartialEq, prost::Message)]
+pub struct ClientMessageWrapper {
+    #[prost(oneof = "client_message::Message", tags = "1, 2")]
+    pub message: Option<client_message::Message>,
+}
+
+#[derive(Clone, PartialEq, prost::Message)]
+pub struct ServerMessageWrapper {
+    #[prost(oneof = "server_message::Message", tags = "1, 2")]
+    pub message: Option<server_message::Message>,
+}
+
 struct Client {
     stream: TcpStream,
 }
@@ -23,26 +35,52 @@ impl Client {
 
     pub fn handle(&mut self) -> io::Result<()> {
         let mut buffer = [0; 512];
-        // Read data from the client
+
         loop {
             match self.stream.read(&mut buffer) {
                 Ok(0) => {
-                    // Client disconnected
                     info!("Client disconnected.");
                     break;
                 }
-                Ok(bytes_read) => {
-                    if let Ok(message) = EchoMessage::decode(&buffer[..bytes_read]) {
-                        info!("Received: {}", message.content);
-                        // Echo back the message
-                        let payload = message.encode_to_vec();
+                Ok(bytes_read) => match ClientMessageWrapper::decode(&buffer[..bytes_read]) {
+                    Ok(ClientMessageWrapper {
+                        message: Some(client_message::Message::EchoMessage(echo_message)),
+                    }) => {
+                        info!("Received EchoMessage: {}", echo_message.content);
+
+                        let response = ServerMessageWrapper {
+                            message: Some(server_message::Message::EchoMessage(echo_message)),
+                        };
+                        let payload = response.encode_to_vec();
                         self.stream.write_all(&payload)?;
-                    } else {
-                        error!("Failed to decode message");
                     }
-                }
+                    Ok(ClientMessageWrapper {
+                        message: Some(client_message::Message::AddRequest(add_request)),
+                    }) => {
+                        info!(
+                            "Received AddRequest: a = {}, b = {}",
+                            add_request.a, add_request.b
+                        );
+
+                        let result = add_request.a + add_request.b;
+                        let response = ServerMessageWrapper {
+                            message: Some(server_message::Message::AddResponse(AddResponse {
+                                result,
+                            })),
+                        };
+                        let payload = response.encode_to_vec();
+                        self.stream.write_all(&payload)?;
+
+                        info!("Sent AddResponse: result = {}", result);
+                    }
+                    Ok(ClientMessageWrapper { message: None }) => {
+                        warn!("Received message with None type.");
+                    }
+                    Err(e) => {
+                        error!("Failed to decode message: {}", e);
+                    }
+                },
                 Err(ref e) if e.kind() == ErrorKind::WouldBlock => {
-                    // No data available; wait briefly to avoid busy-waiting
                     thread::sleep(Duration::from_millis(100));
                 }
                 Err(e) => {
@@ -118,8 +156,7 @@ impl Server {
                 .join()
                 .unwrap_or_else(|_| warn!("A client thread failed to join."));
         }
-
-        info!("Server stopped.");
+        info!("All client threads finished.");
         Ok(())
     }
 
@@ -127,7 +164,19 @@ impl Server {
     pub fn stop(&self) {
         if self.is_running.load(Ordering::SeqCst) {
             self.is_running.store(false, Ordering::SeqCst);
-            info!("Shutdown signal sent.");
+            info!("Shutdown signal sent. Waiting for server to stop...");
+
+            // Wait up to 5 seconds for the server to stop
+            let start_time = std::time::Instant::now();
+            while self.is_running.load(Ordering::SeqCst) {
+                if start_time.elapsed() > Duration::from_secs(5) {
+                    warn!("Server took too long to stop!");
+                    break;
+                }
+                thread::sleep(Duration::from_millis(100));
+            }
+
+            info!("Server stopped.");
         } else {
             warn!("Server was already stopped or not running.");
         }

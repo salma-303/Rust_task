@@ -19,20 +19,18 @@ fn setup_server_thread(server: Arc<Server>) -> JoinHandle<()> {
     })
 }
 
-
 fn create_server() -> Arc<Server> {
     // Bind to "localhost:0" for a random available port
     let server = Server::new("localhost:0").expect("Failed to start server");
     Arc::new(server)
 }
 
-
 #[test]
 fn test_client_connection() {
     let server = create_server();
     let address = server.address(); // Get the dynamic address
     let handle = setup_server_thread(server.clone());
-
+    thread::sleep(std::time::Duration::from_millis(100));
     // Extract host and port from the address
     let parts: Vec<&str> = address.split(':').collect();
     let host = parts[0];
@@ -50,9 +48,12 @@ fn test_client_connection() {
 
     // Stop the server
     server.stop();
+    let server_shutdown_result = handle
+        .join()
+        .map_err(|_| "Server thread panicked or failed to join");
     assert!(
-        handle.join().is_ok(),
-        "Server thread panicked or failed to join"
+        server_shutdown_result.is_ok(),
+        "Server thread did not stop cleanly"
     );
 }
 
@@ -133,8 +134,7 @@ fn test_multiple_echo_messages() {
     log::debug!("Before client connect");
     assert!(client.connect().is_ok(), "Failed to connect to the server");
     log::debug!("After client connect");
-
-
+    
     // Prepare multiple messages
     let messages = vec![
         "Hello, World!".to_string(),
@@ -267,13 +267,14 @@ fn test_multiple_clients() {
 #[test]
 // #[ignore = "please remove ignore and fix this test"]
 fn test_client_add_request() {
-    // Set up the server in a separate thread
+    // Set up the server and start it in a thread
     let server = create_server();
     let handle = setup_server_thread(server.clone());
 
-    // Ensure the server is ready before connecting the client
+    // Ensure the server is ready
     thread::sleep(std::time::Duration::from_millis(100));
 
+    // Extract server address
     let address = server.address();
     let parts: Vec<&str> = address.split(':').collect();
     let host = parts[0];
@@ -283,7 +284,7 @@ fn test_client_add_request() {
     let mut client = client::Client::new(host, port.into(), 1000);
     assert!(client.connect().is_ok(), "Failed to connect to the server");
 
-    // Prepare the message
+    // Send AddRequest and verify AddResponse
     let mut add_request = AddRequest::default();
     add_request.a = 10;
     add_request.b = 20;
@@ -294,13 +295,15 @@ fn test_client_add_request() {
 
     // Receive the response
     let response = client.receive();
-    assert!(
-        response.is_ok(),
-        "Failed to receive response for AddRequest"
-    );
+    assert!(response.is_ok(), "Failed to receive response for AddRequest");
 
     match response.unwrap().message {
         Some(server_message::Message::AddResponse(add_response)) => {
+            // Log or print the received sum
+            println!(
+                "Received AddResponse: result = {}",
+                add_response.result
+            );
             assert_eq!(
                 add_response.result,
                 add_request.a + add_request.b,
@@ -310,16 +313,8 @@ fn test_client_add_request() {
         _ => panic!("Expected AddResponse, but received a different message"),
     }
 
-    // Disconnect the client
-    assert!(
-        client.disconnect().is_ok(),
-        "Failed to disconnect from the server"
-    );
-
-    // Stop the server and wait for thread to finish
+    // Disconnect and stop the server
+    assert!(client.disconnect().is_ok(), "Failed to disconnect from the server");
     server.stop();
-    assert!(
-        handle.join().is_ok(),
-        "Server thread panicked or failed to join"
-    );
+    assert!(handle.join().is_ok(), "Server thread panicked or failed to join");
 }

@@ -46,7 +46,7 @@ impl Client {
         // Connect to the server with a timeout
         let stream = TcpStream::connect_timeout(&socket_addrs[0], self.timeout)?;
         stream.set_read_timeout(Some(Duration::from_secs(30)))?; // Increased timeout
-    stream.set_write_timeout(Some(Duration::from_secs(30)))?; // Increased timeout
+        stream.set_write_timeout(Some(Duration::from_secs(30)))?; // Increased timeout
         self.stream = Some(stream);
 
         println!("Connected to the server!");
